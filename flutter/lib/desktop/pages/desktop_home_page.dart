@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
@@ -201,13 +202,13 @@ class _DesktopHomePageState extends State<DesktopHomePage>
 
             const SizedBox(height: 26),
 
-            // Botón de solicitar soporte (para conectar en el siguiente paso)
+            // Botón de solicitar soporte
             SizedBox(
               width: double.infinity,
               height: 44,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  showToast("Esperando conexión del técnico...");
+                onPressed: () async {
+                  await registerSupportSession(isManual: true);
                 },
                 icon: const Icon(Icons.headset_mic_rounded, size: 20),
                 label: const Text(
@@ -226,6 +227,57 @@ class _DesktopHomePageState extends State<DesktopHomePage>
         ),
       ),
     );
+  }
+
+  bool _hasRegisteredSupportSession = false;
+
+  Future<void> registerSupportSession({bool isManual = false}) async {
+    try {
+      final myId = await bind.mainGetMyId();
+      if (myId.trim().isEmpty) {
+        debugPrint("[Helpdesk] ID local aún no disponible para el registro.");
+        return;
+      }
+
+      final hostname = Platform.localHostname;
+      final os = Platform.operatingSystem;
+
+      final url = Uri.parse("https://webhook.site/4624ddd4-9865-4cf7-9817-c74c29fe4f85");
+      final payload = jsonEncode({
+        "id": myId,
+        "hostname": hostname,
+        "os": os,
+      });
+
+      debugPrint("[Helpdesk] Enviando sesión a API: $payload");
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Accept': 'application/json',
+        },
+        body: payload,
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        _hasRegisteredSupportSession = true;
+        debugPrint("[Helpdesk] Sesión registrada con éxito (${response.statusCode})");
+        if (isManual) {
+          showToast("Solicitud enviada al equipo de soporte.");
+        }
+      } else {
+        debugPrint("[Helpdesk] Respuesta de la API (${response.statusCode}): ${response.body}");
+        if (isManual) {
+          showToast("Esperando conexión del técnico...");
+        }
+      }
+    } catch (e) {
+      debugPrint("[Helpdesk] Error al registrar sesión de soporte: $e");
+      if (isManual) {
+        showToast("Esperando conexión del técnico...");
+      }
+    }
   }
 
   Widget _buildBlock({required Widget child}) {
@@ -861,6 +913,13 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     super.initState();
     _updateTimer = periodic_immediate(const Duration(seconds: 1), () async {
       await gFFI.serverModel.fetchID();
+      if (!_hasRegisteredSupportSession) {
+        final id = await bind.mainGetMyId();
+        if (id.trim().isNotEmpty && stateGlobal.svcStatus.value == SvcStatus.ready) {
+          _hasRegisteredSupportSession = true;
+          registerSupportSession();
+        }
+      }
       final error = await bind.mainGetError();
       if (systemError != error) {
         systemError = error;
