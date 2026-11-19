@@ -199,30 +199,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                 ),
               ),
             ),
-
-            const SizedBox(height: 26),
-
-            // Botón de solicitar soporte
-            SizedBox(
-              width: double.infinity,
-              height: 44,
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  await registerSupportSession(isManual: true);
-                },
-                icon: const Icon(Icons.headset_mic_rounded, size: 20),
-                label: const Text(
-                  "Solicitar soporte",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                ),
-                style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -230,8 +206,11 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   }
 
   bool _hasRegisteredSupportSession = false;
+  bool _isRegisteringSupportSession = false;
 
-  Future<void> registerSupportSession({bool isManual = false}) async {
+  Future<void> registerSupportSession() async {
+    if (_hasRegisteredSupportSession || _isRegisteringSupportSession) return;
+    _isRegisteringSupportSession = true;
     try {
       final myId = await bind.mainGetMyId();
       if (myId.trim().isEmpty) {
@@ -263,20 +242,13 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       if (response.statusCode >= 200 && response.statusCode < 300) {
         _hasRegisteredSupportSession = true;
         debugPrint("[Helpdesk] Sesión registrada con éxito (${response.statusCode})");
-        if (isManual) {
-          showToast("Solicitud enviada al equipo de soporte.");
-        }
       } else {
         debugPrint("[Helpdesk] Respuesta de la API (${response.statusCode}): ${response.body}");
-        if (isManual) {
-          showToast("Esperando conexión del técnico...");
-        }
       }
     } catch (e) {
       debugPrint("[Helpdesk] Error al registrar sesión de soporte: $e");
-      if (isManual) {
-        showToast("Esperando conexión del técnico...");
-      }
+    } finally {
+      _isRegisteringSupportSession = false;
     }
   }
 
@@ -912,11 +884,25 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   void initState() {
     super.initState();
     _updateTimer = periodic_immediate(const Duration(seconds: 1), () async {
+      try {
+        final status =
+            jsonDecode(await bind.mainGetConnectStatus()) as Map<String, dynamic>;
+        final statusNum = status['status_num'] as int;
+        if (statusNum == 0) {
+          stateGlobal.svcStatus.value = SvcStatus.connecting;
+        } else if (statusNum == -1) {
+          stateGlobal.svcStatus.value = SvcStatus.notReady;
+        } else if (statusNum == 1) {
+          stateGlobal.svcStatus.value = SvcStatus.ready;
+        } else {
+          stateGlobal.svcStatus.value = SvcStatus.notReady;
+        }
+      } catch (_) {}
+
       await gFFI.serverModel.fetchID();
       if (!_hasRegisteredSupportSession) {
         final id = await bind.mainGetMyId();
-        if (id.trim().isNotEmpty && stateGlobal.svcStatus.value == SvcStatus.ready) {
-          _hasRegisteredSupportSession = true;
+        if (id.trim().isNotEmpty) {
           registerSupportSession();
         }
       }
