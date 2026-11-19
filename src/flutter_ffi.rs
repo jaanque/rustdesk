@@ -1024,6 +1024,9 @@ pub fn main_get_error() -> String {
 }
 
 pub fn main_set_option(key: String, value: String) -> hbb_common::anyhow::Result<()> {
+    if key == keys::OPTION_APPROVE_MODE || key == keys::OPTION_VERIFICATION_METHOD {
+        return Ok(());
+    }
     if key == "2fa"
         || key == keys::OPTION_ENABLE_TRUSTED_DEVICES
         || key == keys::OPTION_TRUSTED_DEVICE_EXPIRATION

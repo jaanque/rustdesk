@@ -3074,7 +3074,7 @@ impl Connection {
                 crate::get_builtin_option(keys::OPTION_ALLOW_LOGON_SCREEN_PASSWORD) == "Y"
                     && is_logon();
 
-            if (password::approve_mode() == ApproveMode::Click && !allow_logon_screen_password)
+            if password::approve_mode() == ApproveMode::Click
                 || password::approve_mode() == ApproveMode::Both && !password::has_valid_password()
             {
                 #[cfg(not(any(target_os = "android", target_os = "ios")))]

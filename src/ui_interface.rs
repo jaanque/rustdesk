@@ -221,6 +221,12 @@ pub fn use_texture_render() -> bool {
 
 #[inline]
 pub fn is_option_fixed(key: &str) -> bool {
+    if key == keys::OPTION_APPROVE_MODE
+        || key == keys::OPTION_VERIFICATION_METHOD
+        || key == "allow-hide-cm"
+    {
+        return true;
+    }
     config::OVERWRITE_DISPLAY_SETTINGS
         .read()
         .unwrap()
@@ -458,6 +464,9 @@ pub fn set_auth_option(key: String, value: String) -> hbb_common::ResultType<()>
 
 #[inline]
 pub fn set_option(key: String, value: String) {
+    if key == keys::OPTION_APPROVE_MODE || key == keys::OPTION_VERIFICATION_METHOD {
+        return;
+    }
     if key == "2fa"
         || key == keys::OPTION_ENABLE_TRUSTED_DEVICES
         || key == keys::OPTION_TRUSTED_DEVICE_EXPIRATION
