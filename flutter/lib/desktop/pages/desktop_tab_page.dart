@@ -20,20 +20,7 @@ class DesktopTabPage extends StatefulWidget {
 
   static void onAddSetting(
       {SettingsTabKey initialPage = SettingsTabKey.general}) {
-    try {
-      DesktopTabController tabController = Get.find<DesktopTabController>();
-      tabController.add(TabInfo(
-          key: kTabLabelSettingPage,
-          label: kTabLabelSettingPage,
-          selectedIcon: Icons.build_sharp,
-          unselectedIcon: Icons.build_outlined,
-          page: DesktopSettingPage(
-            key: const ValueKey(kTabLabelSettingPage),
-            initialTabkey: initialPage,
-          )));
-    } catch (e) {
-      debugPrintStack(label: '$e');
-    }
+    // Deshabilitado en modo QuickSupport minimalista
   }
 }
 
@@ -52,23 +39,13 @@ class _DesktopTabPageState extends State<DesktopTabPage> {
         page: DesktopHomePage(
           key: const ValueKey(kTabLabelHomePage),
         )));
-    if (bind.isIncomingOnly()) {
-      tabController.onSelected = (key) {
-        if (key == kTabLabelHomePage) {
-          windowManager.setSize(getIncomingOnlyHomeSize());
-          setResizable(false);
-        } else {
-          windowManager.setSize(getIncomingOnlySettingsSize());
-          setResizable(true);
-        }
-      };
-    }
   }
 
   @override
   void initState() {
     super.initState();
-    // HardwareKeyboard.instance.addHandler(_handleKeyEvent);
+    windowManager.setSize(const Size(380, 560));
+    setResizable(false);
   }
 
   /*
@@ -96,24 +73,17 @@ class _DesktopTabPageState extends State<DesktopTabPage> {
             backgroundColor: Theme.of(context).colorScheme.background,
             body: DesktopTab(
               controller: tabController,
-              tail: Offstage(
-                offstage: bind.isIncomingOnly() || bind.isDisableSettings(),
-                child: ActionIcon(
-                  message: 'Settings',
-                  icon: IconFont.menu,
-                  onTap: DesktopTabPage.onAddSetting,
-                  isClose: false,
-                ),
-              ),
+              showLogo: false,
+              showTitle: true,
+              showMaximize: false,
+              tail: const Offstage(),
             )));
     return isMacOS || kUseCompatibleUiMode
         ? tabWidget
-        : Obx(
-            () => DragToResizeArea(
-              resizeEdgeSize: stateGlobal.resizeEdgeSize.value,
-              enableResizeEdges: windowManagerEnableResizeEdges,
-              child: tabWidget,
-            ),
+        : DragToResizeArea(
+            resizeEdgeSize: 0,
+            enableResizeEdges: null,
+            child: tabWidget,
           );
   }
 }

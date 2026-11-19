@@ -58,16 +58,174 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final isIncomingOnly = bind.isIncomingOnly();
     return _buildBlock(
-        child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        buildLeftPane(context),
-        if (!isIncomingOnly) const VerticalDivider(width: 1),
-        if (!isIncomingOnly) Expanded(child: buildRightPane(context)),
-      ],
-    ));
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        body: _buildQuickSupportView(context),
+      ),
+    );
+  }
+
+  Widget _buildQuickSupportView(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Logo de la empresa
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.03),
+                shape: BoxShape.circle,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(50),
+                child: Image.asset(
+                  'assets/mi_logo.png',
+                  width: 96,
+                  height: 96,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(Icons.support_agent_rounded, size: 64, color: primaryColor);
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Título de la aplicación
+            Text(
+              "Soporte Remoto",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+                color: Theme.of(context).textTheme.titleLarge?.color,
+              ),
+            ),
+            const SizedBox(height: 6),
+
+            Text(
+              "Asistencia técnica directa",
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 26),
+
+            // Tarjeta de estado dinámico
+            Obx(() {
+              final stopped = svcStopped.value;
+              final svcStatus = stateGlobal.svcStatus.value;
+
+              final Color statusColor;
+              final String statusText;
+              final IconData statusIcon;
+
+              if (stopped) {
+                statusColor = const Color(0xFFE53935);
+                statusText = "Servicio no disponible";
+                statusIcon = Icons.error_outline_rounded;
+              } else if (svcStatus == SvcStatus.ready) {
+                statusColor = const Color(0xFF2E7D32);
+                statusText = "Conectado. Esperando al técnico...";
+                statusIcon = Icons.check_circle_outline_rounded;
+              } else if (svcStatus == SvcStatus.connecting) {
+                statusColor = const Color(0xFFF57C00);
+                statusText = "Conectando al servidor...";
+                statusIcon = Icons.sync_rounded;
+              } else {
+                statusColor = const Color(0xFFE53935);
+                statusText = "No listo. Comprobando conexión...";
+                statusIcon = Icons.wifi_off_rounded;
+              }
+
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: statusColor.withOpacity(isDark ? 0.15 : 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: statusColor.withOpacity(0.3),
+                    width: 1.2,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(statusIcon, color: statusColor, size: 20),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: Text(
+                        statusText,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: statusColor,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+
+            const SizedBox(height: 22),
+
+            // Mensaje explicativo amigable
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.02),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                "Cuando el técnico inicie la conexión, aparecerá una ventana en su pantalla para aceptar el acceso. Solo debe pulsar \"Aceptar\".",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1.4,
+                  color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.8),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 26),
+
+            // Botón de solicitar soporte (para conectar en el siguiente paso)
+            SizedBox(
+              width: double.infinity,
+              height: 44,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  showToast("Esperando conexión del técnico...");
+                },
+                icon: const Icon(Icons.headset_mic_rounded, size: 20),
+                label: const Text(
+                  "Solicitar soporte",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildBlock({required Widget child}) {
