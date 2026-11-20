@@ -102,7 +102,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
 
             // Título de la aplicación
             Text(
-              "Soporte Remoto",
+              "Suport Remot",
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -113,7 +113,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
             const SizedBox(height: 6),
 
             Text(
-              "Asistencia técnica directa",
+              "Assistència tècnica directa",
               style: TextStyle(
                 fontSize: 13,
                 color: Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey,
