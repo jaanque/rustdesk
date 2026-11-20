@@ -3865,13 +3865,18 @@ class _LogoState extends State<_Logo> {
 Widget loadLogo() => const _Logo();
 
 Widget loadIcon(double size) {
-  return Image.asset('assets/icon.png',
+  return Image.asset('assets/mi_logo.png',
       width: size,
       height: size,
-      errorBuilder: (ctx, error, stackTrace) => SvgPicture.asset(
-            'assets/icon.svg',
+      errorBuilder: (ctx, error, stackTrace) => Image.asset(
+            'assets/icon.png',
             width: size,
             height: size,
+            errorBuilder: (ctx, error, stackTrace) => SvgPicture.asset(
+                  'assets/icon.svg',
+                  width: size,
+                  height: size,
+                ),
           ));
 }
 
