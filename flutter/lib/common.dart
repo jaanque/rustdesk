@@ -3061,7 +3061,10 @@ int versionCmp(String v1, String v2) {
 }
 
 String getWindowName({WindowType? overrideType}) {
-  final name = bind.mainGetAppNameSync();
+  var name = bind.mainGetAppNameSync();
+  if (name == 'RustDesk' || name.isEmpty) {
+    name = 'ZBLLEIDA';
+  }
   switch (overrideType ?? kWindowType) {
     case WindowType.Main:
       return name;

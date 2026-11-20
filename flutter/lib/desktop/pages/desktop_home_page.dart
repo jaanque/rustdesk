@@ -132,19 +132,19 @@ class _DesktopHomePageState extends State<DesktopHomePage>
 
               if (stopped) {
                 statusColor = const Color(0xFFE53935);
-                statusText = "Servicio no disponible";
+                statusText = "Servei no disponible";
                 statusIcon = Icons.error_outline_rounded;
               } else if (svcStatus == SvcStatus.ready) {
                 statusColor = const Color(0xFF2E7D32);
-                statusText = "Conectado. Esperando al técnico...";
+                statusText = "Connectat. Esperant el tècnic...";
                 statusIcon = Icons.check_circle_outline_rounded;
               } else if (svcStatus == SvcStatus.connecting) {
                 statusColor = const Color(0xFFF57C00);
-                statusText = "Conectando al servidor...";
+                statusText = "Connectant al servidor...";
                 statusIcon = Icons.sync_rounded;
               } else {
                 statusColor = const Color(0xFFE53935);
-                statusText = "No listo. Comprobando conexión...";
+                statusText = "No a punt. Comprovant la connexió...";
                 statusIcon = Icons.wifi_off_rounded;
               }
 
@@ -190,7 +190,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                "Cuando el técnico inicie la conexión, aparecerá una ventana en su pantalla para aceptar el acceso. Solo debe pulsar \"Aceptar\".",
+                "Quan el tècnic iniciï la connexió, apareixerà una finestra a la pantalla per acceptar l'accés. Només heu de prémer \"Accepta\".",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12,
