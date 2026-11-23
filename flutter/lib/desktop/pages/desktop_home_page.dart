@@ -110,15 +110,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                 color: Theme.of(context).textTheme.titleLarge?.color,
               ),
             ),
-            const SizedBox(height: 6),
-
-            Text(
-              "Assistència tècnica directa",
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey,
-              ),
-            ),
             const SizedBox(height: 26),
 
             // Tarjeta de estado dinámico
@@ -179,26 +170,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                 ),
               );
             }),
-
-            const SizedBox(height: 22),
-
-            // Mensaje explicativo amigable
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.02),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                "Quan el tècnic iniciï la connexió, apareixerà una finestra a la pantalla per acceptar l'accés. Només heu de prémer \"Accepta\".",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  height: 1.4,
-                  color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.8),
-                ),
-              ),
-            ),
           ],
         ),
       ),
