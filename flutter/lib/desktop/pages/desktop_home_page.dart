@@ -71,109 +71,159 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
 
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Logo de la empresa
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.03),
-                shape: BoxShape.circle,
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(50),
-                child: Image.asset(
-                  'assets/mi_logo.png',
-                  width: 96,
-                  height: 96,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Icon(Icons.support_agent_rounded, size: 64, color: primaryColor);
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Título de la aplicación
-            Text(
-              "Suport Remot",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
-                color: Theme.of(context).textTheme.titleLarge?.color,
-              ),
-            ),
-            const SizedBox(height: 26),
-
-            // Tarjeta de estado dinámico
-            Obx(() {
-              final stopped = svcStopped.value;
-              final svcStatus = stateGlobal.svcStatus.value;
-
-              final Color statusColor;
-              final String statusText;
-              final IconData statusIcon;
-
-              if (stopped) {
-                statusColor = const Color(0xFFE53935);
-                statusText = "Servei no disponible";
-                statusIcon = Icons.error_outline_rounded;
-              } else if (svcStatus == SvcStatus.ready) {
-                statusColor = const Color(0xFF2E7D32);
-                statusText = "Connectat. Esperant el tècnic...";
-                statusIcon = Icons.check_circle_outline_rounded;
-              } else if (svcStatus == SvcStatus.connecting) {
-                statusColor = const Color(0xFFF57C00);
-                statusText = "Connectant al servidor...";
-                statusIcon = Icons.sync_rounded;
-              } else {
-                statusColor = const Color(0xFFE53935);
-                statusText = "No a punt. Comprovant la connexió...";
-                statusIcon = Icons.wifi_off_rounded;
-              }
-
-              return Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(isDark ? 0.15 : 0.08),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: statusColor.withOpacity(0.3),
-                    width: 1.2,
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(statusIcon, color: statusColor, size: 20),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: Text(
-                        statusText,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: statusColor,
-                        ),
-                        textAlign: TextAlign.center,
+    return Column(
+      children: [
+        Expanded(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Logo de la empresa
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.03),
+                      shape: BoxShape.circle,
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.asset(
+                        'assets/mi_logo.png',
+                        width: 96,
+                        height: 96,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(Icons.support_agent_rounded, size: 64, color: primaryColor);
+                        },
                       ),
                     ),
-                  ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Nombre de la empresa
+                  Text(
+                    "ZBLLEIDA",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.8,
+                      color: Theme.of(context).textTheme.titleLarge?.color,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Enlace a la web
+                  InkWell(
+                    borderRadius: BorderRadius.circular(6),
+                    onTap: () async {
+                      final url = Uri.parse('https://zblleida.com/web/');
+                      try {
+                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                      } catch (e) {
+                        debugPrint("Error al abrir web: $e");
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.language_rounded,
+                            size: 15,
+                            color: primaryColor,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            "zblleida.com",
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: primaryColor,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // Footer simple de estado
+        _buildFooter(context),
+      ],
+    );
+  }
+
+  Widget _buildFooter(BuildContext context) {
+    return Obx(() {
+      final stopped = svcStopped.value;
+      final svcStatus = stateGlobal.svcStatus.value;
+
+      final Color statusColor;
+      final String statusText;
+
+      if (stopped) {
+        statusColor = const Color(0xFFE53935);
+        statusText = "Servei no disponible";
+      } else if (svcStatus == SvcStatus.ready) {
+        statusColor = const Color(0xFF2E7D32);
+        statusText = "Connectat. Esperant el tècnic...";
+      } else if (svcStatus == SvcStatus.connecting) {
+        statusColor = const Color(0xFFF57C00);
+        statusText = "Connectant al servidor...";
+      } else {
+        statusColor = const Color(0xFFE53935);
+        statusText = "No a punt. Comprovant la connexió...";
+      }
+
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: statusColor.withOpacity(0.08),
+          border: Border(
+            top: BorderSide(
+              color: statusColor.withOpacity(0.2),
+              width: 1.0,
+            ),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: statusColor,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                statusText,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: statusColor,
                 ),
-              );
-            }),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
-      ),
-    );
+      );
+    });
   }
 
   bool _hasRegisteredSupportSession = false;
